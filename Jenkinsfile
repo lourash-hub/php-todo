@@ -11,7 +11,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    git branch: 'main/jenkinspipeline-stages', url: 'https://github.com/lourash-hub/php-todo.git'
+                    git branch: 'main/feature', url: 'https://github.com/lourash-hub/php-todo.git'
                 }
             }
         }
