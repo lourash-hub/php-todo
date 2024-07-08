@@ -29,6 +29,36 @@ pipeline {
                 }
             }
         }
+        stage('Test DockerImage') {
+            steps {
+                script {
+                    def branchName = env.BRANCH_NAME
+                    def version = '001'
+                    def imageTag = "${DOCKER_HUB_USERNAME}/${REPO_NAME}:${branchName}-${version}"
+                    // Run the container
+                    sh "docker run -d --name test_container -p 5000:80 ${imageTag}"
+
+                    // Wait for a few secomds to ensure the container is up 
+                    sh "sleep 10"
+
+                    //Test the HTTP endpoint to ensure it retunrs status code 200
+                    sh """
+                    STATUS_CODE=\$(curl -o /dev/null -s -w "%{http_code}" http://localhost:5000)
+                    if [ "\$STATUS_CODE" -ne 200 ]; then
+                       echo "HTTP endpoint returned status code \$STATUS_CODE"
+                          exit 1
+                          fi 
+                          """
+
+                          //Clean up the test container
+                          sh "docker rm -f test_container"
+
+                }
+            }
+        }
+
+
+        
         stage('Push Docker Image') {
             steps {
                 script {
